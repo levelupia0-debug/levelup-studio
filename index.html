@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
         :root {
             --bg-deep: #020617;
@@ -20,199 +20,187 @@
             background-color: var(--bg-deep); 
             color: #f8fafc;
             background-image: 
-                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 100% 100%, rgba(147, 51, 234, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(147, 51, 234, 0.08) 0%, transparent 40%);
             min-height: 100vh;
             overflow-x: hidden;
         }
 
         .glass { 
-            background: rgba(15, 23, 42, 0.7); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            backdrop-filter: blur(24px); 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            background: rgba(15, 23, 42, 0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            backdrop-filter: blur(20px); 
         }
 
-        .card-gradient {
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+        .card-glow {
+            transition: all 0.4s ease;
         }
 
-        .input-focus:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px var(--accent-glow);
+        .card-glow:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        .toggle-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);
+        .toggle-active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
         }
 
         #auth-overlay, #forbidden-overlay {
-            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.95) 0%, #020617 100%);
-            backdrop-filter: blur(20px);
+            background: #020617;
             z-index: 100;
         }
 
-        .console-log { font-family: 'Fira Code', monospace; font-size: 11px; }
-        
-        @keyframes pulse-soft {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        @keyframes slideIn {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
-        .pulse { animation: pulse-soft 2s infinite; }
+        .animate-slide { animation: slideIn 0.4s ease forwards; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-10">
 
-    <!-- Écran de Connexion -->
+    <!-- Auth Overlay -->
     <div id="auth-overlay" class="fixed inset-0 flex items-center justify-center p-4">
-        <div class="glass p-10 rounded-[3rem] w-full max-w-md text-center border-white/10">
-            <div class="relative w-24 h-24 mx-auto mb-8">
-                <div class="absolute inset-0 bg-blue-600 blur-2xl opacity-40 animate-pulse"></div>
-                <div class="relative w-24 h-24 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-3xl flex items-center justify-center shadow-2xl">
-                    <i data-lucide="shield-check" class="text-white w-12 h-12"></i>
-                </div>
+        <div class="glass p-12 rounded-[3.5rem] w-full max-w-md text-center">
+            <div class="w-20 h-20 bg-blue-600 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-blue-500/20">
+                <i data-lucide="shield-check" class="text-white w-10 h-10"></i>
             </div>
-            <h2 class="text-3xl font-extrabold tracking-tight mb-2">LevelUp Admin</h2>
-            <p class="text-slate-400 text-sm mb-10">Interface de gestion privée</p>
-            
-            <button onclick="handleGoogleLogin()" class="w-full py-4 bg-white text-slate-950 font-bold rounded-2xl hover:bg-slate-100 flex items-center justify-center gap-3 transition-all group">
-                <i data-lucide="log-in" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
-                Se connecter avec Google
+            <h2 class="text-3xl font-bold mb-2">LevelUp Admin</h2>
+            <p class="text-slate-400 text-sm mb-10 tracking-wide font-medium">Authentification requise</p>
+            <button onclick="handleGoogleLogin()" class="w-full py-4 bg-white text-slate-950 font-bold rounded-2xl hover:bg-slate-100 flex items-center justify-center gap-3 transition-all">
+                <i data-lucide="log-in" class="w-5 h-5"></i>
+                Continuer avec Google
             </button>
         </div>
     </div>
 
-    <!-- Écran ACCÈS INTERDIT -->
+    <!-- Forbidden Overlay -->
     <div id="forbidden-overlay" class="fixed inset-0 flex items-center justify-center p-4 hidden">
-        <div class="glass p-10 rounded-[3rem] w-full max-w-md text-center border-red-500/20">
-            <div class="w-24 h-24 bg-red-500/10 border border-red-500/20 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8">
-                <i data-lucide="lock" class="text-red-500 w-12 h-12"></i>
+        <div class="glass p-12 rounded-[3.5rem] w-full max-w-md text-center border-red-500/20">
+            <div class="w-20 h-20 bg-red-500/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
+                <i data-lucide="lock" class="text-red-500 w-10 h-10"></i>
             </div>
-            <h2 class="text-3xl font-extrabold text-red-500 mb-2">Accès Limité</h2>
-            <p id="forbidden-msg" class="text-slate-400 text-sm mb-10">Votre e-mail ne figure pas sur la liste blanche.</p>
-            
-            <button onclick="handleLogout()" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl transition-all">
+            <h2 class="text-2xl font-bold text-white mb-4">Accès Non Autorisé</h2>
+            <p id="forbidden-msg" class="text-slate-400 text-sm mb-10 leading-relaxed"></p>
+            <button onclick="handleLogout()" class="w-full py-4 bg-slate-800 text-white font-bold rounded-2xl hover:bg-slate-700 transition-all">
                 Changer de compte
             </button>
         </div>
     </div>
 
-    <!-- Interface Principale -->
-    <div class="max-w-7xl mx-auto">
-        <header class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
-            <div class="flex items-center gap-5">
-                <div class="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 shadow-inner">
-                    <i data-lucide="command" class="text-blue-500 w-8 h-8"></i>
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-16">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <i data-lucide="layers" class="text-white w-6 h-6"></i>
                 </div>
                 <div>
-                    <h1 class="text-4xl font-black text-white tracking-tighter">STUDIO<span class="text-blue-500">.</span></h1>
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Dashboard de contrôle</p>
+                    <h1 class="text-2xl font-bold tracking-tight">LevelUp <span class="text-blue-500">Studio</span></h1>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Management Suite</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-3 px-6 py-3 bg-white/5 rounded-2xl border border-white/10">
-                    <img id="user-avatar" src="" class="w-8 h-8 rounded-full border border-white/10 hidden">
-                    <div class="text-right">
-                        <p id="user-display" class="text-xs font-bold text-white leading-none">Vérification...</p>
-                        <p class="text-[10px] text-green-500 font-bold uppercase tracking-tighter pulse">Session Active</p>
-                    </div>
+            <div class="flex items-center gap-4 glass px-5 py-2.5 rounded-2xl">
+                <div class="text-right hidden sm:block">
+                    <p id="user-display" class="text-xs font-bold text-white">Admin</p>
+                    <p class="text-[9px] text-green-500 font-bold uppercase">En ligne</p>
                 </div>
-                <button onclick="handleLogout()" class="w-12 h-12 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl transition-all flex items-center justify-center border border-red-500/20">
-                    <i data-lucide="power" class="w-5 h-5"></i>
+                <button onclick="handleLogout()" class="w-10 h-10 bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-500 rounded-xl transition-all flex items-center justify-center">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
                 </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Panneau de gauche -->
-            <div class="lg:col-span-8 space-y-8">
-                <!-- Status & Progress -->
-                <div class="glass p-8 rounded-[2.5rem] card-gradient relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-8 opacity-5">
-                        <i data-lucide="activity" class="w-32 h-32 text-white"></i>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <!-- Main Controls -->
+            <div class="lg:col-span-7 space-y-10">
+                
+                <!-- Status Switcher -->
+                <div class="glass p-8 rounded-[2.5rem] card-glow">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 class="font-bold text-lg">État du Studio</h3>
+                            <p class="text-xs text-slate-500">Gérez l'ouverture des sessions publiques</p>
+                        </div>
+                        <div id="status-badge" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"></div>
                     </div>
-                    
-                    <h3 class="font-bold text-xl mb-8 flex items-center gap-3 italic">
-                        <span class="w-1.5 h-6 bg-blue-500 rounded-full"></span>
-                        Paramètres Temps Réel
-                    </h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="text-[11px] font-black uppercase text-slate-500 tracking-wider ml-2">État du Studio</label>
-                            <div class="relative">
-                                <select id="isSessionOpen" onchange="updateSettings()" class="w-full bg-slate-900/50 border border-white/10 rounded-2xl p-4 text-white font-bold appearance-none input-focus cursor-pointer">
-                                    <option value="true">🔓 STUDIO OUVERT</option>
-                                    <option value="false">🔒 STUDIO FERMÉ</option>
-                                </select>
-                                <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
-                                    <i data-lucide="chevron-down" class="w-5 h-5"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-[11px] font-black uppercase text-slate-500 tracking-wider ml-2">Progression (%)</label>
-                            <div class="relative">
-                                <input type="number" id="progressVal" onchange="updateSettings()" class="w-full bg-slate-900/50 border border-white/10 rounded-2xl p-4 text-blue-400 font-black input-focus" min="0" max="100">
-                                <div class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500/50 font-black">%</div>
-                            </div>
-                        </div>
+
+                    <div class="grid grid-cols-2 gap-4 p-1.5 bg-black/40 rounded-[1.5rem] border border-white/5">
+                        <button id="btn-open" onclick="setStatus(true)" class="toggle-btn py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm">
+                            <i data-lucide="unlock" class="w-4 h-4"></i>
+                            OUVERT
+                        </button>
+                        <button id="btn-close" onclick="setStatus(false)" class="toggle-btn py-4 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm">
+                            <i data-lucide="lock-keyhole" class="w-4 h-4"></i>
+                            FERMÉ
+                        </button>
                     </div>
                 </div>
 
-                <!-- Messaging -->
-                <div class="glass p-8 rounded-[2.5rem] space-y-6 card-gradient">
-                    <h3 class="font-bold text-xl flex items-center gap-3 italic">
-                        <span class="w-1.5 h-6 bg-purple-500 rounded-full"></span>
-                        Diffusion aux Clients
+                <!-- Global Progress -->
+                <div class="glass p-8 rounded-[2.5rem] card-glow">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-bold text-lg">Progression Générale</h3>
+                        <span id="progress-percent" class="text-blue-500 font-black text-xl">0%</span>
+                    </div>
+                    <input type="range" id="progressVal" min="0" max="100" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500" oninput="updateProgressUI(this.value)" onchange="updateSettings()">
+                    <div class="flex justify-between mt-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+                        <span>Phase Début</span>
+                        <span>Phase Finale</span>
+                    </div>
+                </div>
+
+                <!-- Global Announcements -->
+                <div class="glass p-8 rounded-[2.5rem] card-glow">
+                    <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
+                        <i data-lucide="megaphone" class="w-5 h-5 text-blue-500"></i>
+                        Annonce Client
                     </h3>
                     <div class="space-y-4">
-                        <input type="text" id="statusTitle" class="w-full p-5 rounded-2xl bg-slate-900/50 border border-white/10 input-focus text-white font-semibold" placeholder="Titre de l'annonce..." onchange="updateSettings()">
-                        <textarea id="statusDescription" class="w-full p-5 rounded-2xl bg-slate-900/50 border border-white/10 input-focus text-slate-300 h-40 leading-relaxed" placeholder="Contenu du message..." onchange="updateSettings()"></textarea>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">Titre de l'alerte</label>
+                            <input type="text" id="statusTitle" class="w-full bg-black/30 border border-white/5 rounded-2xl p-4 text-white font-semibold focus:border-blue-500/50 outline-none transition-all" placeholder="Ex: Maintenance en cours..." onchange="updateSettings()">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">Message détaillé</label>
+                            <textarea id="statusDescription" class="w-full bg-black/30 border border-white/5 rounded-2xl p-4 text-slate-300 h-32 outline-none focus:border-blue-500/50 transition-all resize-none" placeholder="Décrivez la situation actuelle..." onchange="updateSettings()"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Panneau de droite -->
-            <div class="lg:col-span-4 space-y-6">
-                <div class="flex items-center justify-between px-4">
-                    <h2 class="text-xs font-black uppercase tracking-widest text-slate-500">Demandes Récentes</h2>
-                    <span id="req-count" class="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full font-black">0</span>
+            <!-- Requests Sidebar -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="flex items-center justify-between px-2">
+                    <h2 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Flux de demandes</h2>
+                    <span id="req-count" class="bg-blue-600/20 text-blue-500 text-[10px] px-3 py-1 rounded-full font-black border border-blue-500/20">0</span>
                 </div>
                 
-                <div id="requests-list" class="space-y-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
-                    <!-- Les items seront injectés ici -->
+                <div id="requests-list" class="space-y-4 max-h-[85vh] overflow-y-auto pr-2 custom-scrollbar">
+                    <!-- Dynamic Content -->
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Console de Debug Premium -->
-    <div id="debug-container" class="fixed bottom-6 right-6 w-80 glass rounded-3xl border border-white/10 overflow-hidden shadow-2xl z-[9999]">
-        <div class="bg-white/5 px-4 py-3 border-b border-white/5 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Log System</span>
-            </div>
-            <button onclick="clearLogs()" class="text-[9px] text-slate-500 hover:text-white transition-colors font-bold">CLEAR</button>
-        </div>
-        <div id="debug-console" class="p-4 h-48 overflow-y-auto space-y-2 console-log bg-black/20"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        // CORRECTION ICI : Ajout de setDoc dans les imports globaux et retrait de updateDoc
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 
+        // Configuration Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBBJGVLBN2a2-CaoSH4Jtn3aRjIHqOO-7E",
             authDomain: "bonteia.firebaseapp.com",
@@ -228,23 +216,36 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        const log = (msg, type = 'info') => {
-            const consoleEl = document.getElementById('debug-console');
-            const entry = document.createElement('div');
-            const icons = { info: '●', success: '✔', error: '✘', warn: '⚠' };
-            const colors = { info: 'text-blue-400', success: 'text-green-400', error: 'text-red-400 font-bold', warn: 'text-yellow-400' };
-            entry.className = `${colors[type] || 'text-white'} flex gap-2`;
-            entry.innerHTML = `<span class="opacity-50">${icons[type] || '•'}</span> <span>${msg}</span>`;
-            consoleEl.prepend(entry);
+        let currentStatus = false;
+
+        // UI Helpers
+        window.setStatus = (status) => {
+            currentStatus = status;
+            const btnOpen = document.getElementById('btn-open');
+            const btnClose = document.getElementById('btn-close');
+            const badge = document.getElementById('status-badge');
+
+            if(status) {
+                btnOpen.classList.add('toggle-active');
+                btnClose.classList.remove('toggle-active');
+                badge.innerText = "Public : Actif";
+                badge.className = "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-green-500/10 text-green-500 border border-green-500/20";
+            } else {
+                btnClose.classList.add('toggle-active');
+                btnOpen.classList.remove('toggle-active');
+                badge.innerText = "Public : Fermé";
+                badge.className = "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-500 border border-slate-500/20";
+            }
+            updateSettings();
         };
 
+        window.updateProgressUI = (val) => {
+            document.getElementById('progress-percent').innerText = val + '%';
+        };
+
+        // Firebase Logic
         window.handleGoogleLogin = async () => {
-            try {
-                log("Initialisation Google Auth...", "info");
-                await signInWithPopup(auth, provider);
-            } catch (e) {
-                log("Échec : " + e.code, "error");
-            }
+            try { await signInWithPopup(auth, provider); } catch (e) { console.error(e); }
         };
 
         window.handleLogout = async () => {
@@ -256,30 +257,21 @@
             const overlay = document.getElementById('auth-overlay');
             const forbidden = document.getElementById('forbidden-overlay');
             const userDisplay = document.getElementById('user-display');
-            const userAvatar = document.getElementById('user-avatar');
             
             if (user) {
                 const email = user.email.toLowerCase();
-                log(`Vérification de ${email}...`);
-                
                 const adminRef = doc(db, 'artifacts', appId, 'public', 'data', 'admins', email);
                 const adminSnap = await getDoc(adminRef);
 
                 if (adminSnap.exists()) {
-                    log("Session Admin validée.", "success");
                     overlay.classList.add('hidden');
                     forbidden.classList.add('hidden');
-                    userDisplay.innerText = email;
-                    if(user.photoURL) {
-                        userAvatar.src = user.photoURL;
-                        userAvatar.classList.remove('hidden');
-                    }
+                    userDisplay.innerText = email.split('@')[0];
                     loadData();
                 } else {
-                    log(`Accès restreint pour ${email}`, "warn");
                     overlay.classList.add('hidden');
                     forbidden.classList.remove('hidden');
-                    document.getElementById('forbidden-msg').innerText = `Le compte ${email} n'a pas les droits requis.`;
+                    document.getElementById('forbidden-msg').innerText = `Le compte ${email} n'est pas autorisé à accéder à cette console.`;
                 }
             } else {
                 overlay.classList.remove('hidden');
@@ -287,61 +279,54 @@
         });
 
         function loadData() {
+            // Load Settings
             onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), (snap) => {
                 if (snap.exists()) {
                     const d = snap.data();
-                    document.getElementById('isSessionOpen').value = d.isSessionOpen.toString();
+                    window.setStatus(d.isSessionOpen);
                     document.getElementById('progressVal').value = d.progress || 0;
+                    window.updateProgressUI(d.progress || 0);
                     document.getElementById('statusTitle').value = d.statusTitle || '';
                     document.getElementById('statusDescription').value = d.statusDescription || '';
-                    log("Base de données synchronisée.", "success");
-                } else {
-                    log("Document settings/main introuvable, il sera créé à la première sauvegarde.", "warn");
                 }
-            }, (err) => {
-                log("ERREUR RULES : Allez dans Firebase > Rules !", "error");
-                log("Détail: " + err.code, "error");
             });
 
+            // Load Requests
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'requests'), (snap) => {
                 const list = document.getElementById('requests-list');
                 document.getElementById('req-count').innerText = snap.size;
-                list.innerHTML = snap.docs.map(doc => {
-                    const r = doc.data();
-                    const color = r.isDone ? 'border-green-500/30 bg-green-500/5' : 'border-blue-500/30 bg-blue-500/5';
-                    return `
-                        <div class="glass p-5 rounded-3xl border-l-4 ${color} transition-all hover:translate-x-1">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-[9px] font-black text-blue-400 uppercase tracking-tighter">${r.category}</span>
-                                <span class="text-[9px] text-slate-500 font-bold">${new Date().toLocaleTimeString()}</span>
-                            </div>
-                            <div class="text-sm font-bold text-white mb-1">${r.pseudo}</div>
-                            <div class="text-xs text-slate-400 leading-relaxed">${r.details}</div>
+                
+                const docs = snap.docs.map(doc => ({id: doc.id, ...doc.data()}))
+                                .sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+                list.innerHTML = docs.map(r => `
+                    <div class="glass p-6 rounded-3xl border border-white/5 animate-slide">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="px-2 py-0.5 bg-blue-500/10 text-blue-500 text-[9px] font-black uppercase rounded-md border border-blue-500/10">
+                                ${r.category || 'Général'}
+                            </span>
                         </div>
-                    `;
-                }).join('');
+                        <div class="text-sm font-bold text-white mb-2">${r.pseudo || 'Anonyme'}</div>
+                        <p class="text-xs text-slate-400 leading-relaxed">${r.details || 'Aucun détail'}</p>
+                    </div>
+                `).join('');
             });
         }
 
         window.updateSettings = async () => {
-            const user = auth.currentUser;
-            if(!user) return;
+            if(!auth.currentUser) return;
             try {
-                // CORRECTION ICI : setDoc est appelé proprement sans le mauvais "import"
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), {
-                    isSessionOpen: document.getElementById('isSessionOpen').value === 'true',
+                    isSessionOpen: currentStatus,
                     progress: parseInt(document.getElementById('progressVal').value),
                     statusTitle: document.getElementById('statusTitle').value,
                     statusDescription: document.getElementById('statusDescription').value
                 }, { merge: true });
-                
-                log("Sauvegarde confirmée sur le serveur.", "success");
             } catch (e) {
-                log("Échec : " + e.message, "error");
+                console.error("Erreur de sauvegarde:", e);
             }
         };
 
-        window.clearLogs = () => document.getElementById('debug-console').innerHTML = "";
         lucide.createIcons();
     </script>
 </body>
