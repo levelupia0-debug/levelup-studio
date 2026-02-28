@@ -161,7 +161,7 @@
         window.handleGoogleLogin = async () => {
             try {
                 log("Ouverture popup Google...", "info");
-                // Étape critique : On s'assure d'écrire ton e-mail avant que la vérification ne tourne
+                // On pré-autorise l'email en minuscules pour éviter les erreurs de frappe
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'admins', 'richelieubonte@gmail.com'), { role: 'owner' });
                 log("E-mail admin pré-autorisé.", "success");
                 await signInWithPopup(auth, provider);
@@ -181,21 +181,22 @@
             const userDisplay = document.getElementById('user-display');
             
             if (user) {
-                log(`Vérification pour: ${user.email}...`);
-                const adminRef = doc(db, 'artifacts', appId, 'public', 'data', 'admins', user.email);
+                const email = user.email.toLowerCase();
+                log(`Vérification pour: ${email}...`);
+                const adminRef = doc(db, 'artifacts', appId, 'public', 'data', 'admins', email);
                 const adminSnap = await getDoc(adminRef);
 
                 if (adminSnap.exists()) {
                     log("Accès Admin confirmé !", "success");
                     overlay.classList.add('hidden');
                     forbidden.classList.add('hidden');
-                    userDisplay.innerText = user.email;
+                    userDisplay.innerText = email;
                     loadData();
                 } else {
-                    log(`Accès refusé pour ${user.email}`, "error");
+                    log(`Accès refusé pour ${email}`, "error");
                     overlay.classList.add('hidden');
                     forbidden.classList.remove('hidden');
-                    document.getElementById('forbidden-msg').innerText = `Le compte ${user.email} n'est pas autorisé.`;
+                    document.getElementById('forbidden-msg').innerText = `Le compte ${email} n'est pas autorisé.`;
                 }
             } else {
                 overlay.classList.remove('hidden');
@@ -211,7 +212,7 @@
                     document.getElementById('statusTitle').value = d.statusTitle || '';
                     document.getElementById('statusDescription').value = d.statusDescription || '';
                 }
-            });
+            }, (err) => log("Lecture interdite (Rules): " + err.code, "error"));
 
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'requests'), (snap) => {
                 const list = document.getElementById('requests-list');
