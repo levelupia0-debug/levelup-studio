@@ -209,7 +209,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, onSnapshot, updateDoc, collection } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        // CORRECTION ICI : Ajout de setDoc dans les imports globaux et retrait de updateDoc
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -326,10 +327,7 @@
             const user = auth.currentUser;
             if(!user) return;
             try {
-                // Remplacement de updateDoc par setDoc avec merge: true
-                // Cela évite les erreurs si le document n'existe pas encore !
-                import { setDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-                
+                // CORRECTION ICI : setDoc est appelé proprement sans le mauvais "import"
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), {
                     isSessionOpen: document.getElementById('isSessionOpen').value === 'true',
                     progress: parseInt(document.getElementById('progressVal').value),
