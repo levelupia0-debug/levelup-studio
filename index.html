@@ -3,112 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LevelUp Admin - Hyper Edition</title>
+    <title>LevelUp Admin - Sécurité Avancée</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap');
         
-        :root {
-            --primary: #3b82f6;
-            --primary-glow: rgba(59, 130, 246, 0.4);
-        }
-
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #020617; 
             color: #f8fafc;
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 100% 100%, rgba(147, 51, 234, 0.1) 0%, transparent 40%);
+            background-image: radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 40%);
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
         .admin-card { 
             background: rgba(15, 23, 42, 0.6); 
             border: 1px solid rgba(255, 255, 255, 0.08); 
             backdrop-filter: blur(16px); 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .request-done {
-            opacity: 0.4;
-            border-left-color: #22c55e !important;
-            filter: grayscale(0.8);
+        #auth-overlay, #forbidden-overlay {
+            background: rgba(2, 6, 23, 0.98);
+            backdrop-filter: blur(20px);
         }
 
-        input, textarea, select { 
-            background: rgba(2, 6, 23, 0.5) !important; 
-            border: 1px solid rgba(255, 255, 255, 0.1) !important; 
-            color: white !important; 
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        #auth-overlay {
-            background: rgba(2, 6, 23, 0.95);
-            backdrop-filter: blur(10px);
-        }
-
-        .console-log {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 10px;
-        }
-
-        #debug-container {
-            z-index: 9999;
-        }
-
+        .console-log { font-family: monospace; font-size: 10px; }
         ::-webkit-scrollbar { width: 0px; }
     </style>
 </head>
 <body class="p-4 md:p-12">
 
-    <!-- Écran de Connexion Google -->
+    <!-- Écran de Connexion -->
     <div id="auth-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="admin-card p-10 rounded-[2.5rem] w-full max-w-md border border-white/10 shadow-2xl text-center">
-            <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-900/40">
+        <div class="admin-card p-10 rounded-[2.5rem] w-full max-w-md text-center">
+            <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
                 <i data-lucide="shield-check" class="text-white w-10 h-10"></i>
             </div>
-            <h2 class="text-2xl font-black uppercase tracking-widest mb-2">Admin Panel</h2>
-            <p class="text-slate-400 text-sm mb-8">Identification requise pour modifier le studio</p>
+            <h2 class="text-2xl font-black uppercase mb-2">Panel Privé</h2>
+            <p class="text-slate-400 text-sm mb-8">Connectez-vous pour continuer</p>
             
-            <button onclick="handleGoogleLogin()" id="login-btn" class="w-full py-4 bg-white text-slate-900 font-bold rounded-2xl transition-all hover:bg-slate-200 flex items-center justify-center gap-3 shadow-xl">
-                <svg class="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Se connecter avec Google
+            <button onclick="handleGoogleLogin()" id="login-btn" class="w-full py-4 bg-white text-slate-900 font-bold rounded-2xl hover:bg-slate-200 flex items-center justify-center gap-3 transition-all">
+                <i data-lucide="log-in" class="w-5 h-5"></i>
+                Continuer avec Google
             </button>
-            <p id="auth-error" class="text-red-500 text-[10px] mt-6 font-bold uppercase hidden"></p>
         </div>
     </div>
 
+    <!-- Écran ACCÈS INTERDIT (Caché par défaut) -->
+    <div id="forbidden-overlay" class="fixed inset-0 z-[110] flex items-center justify-center p-4 hidden">
+        <div class="admin-card p-10 rounded-[2.5rem] w-full max-w-md text-center border-red-500/30">
+            <div class="w-20 h-20 bg-red-500/20 border border-red-500/50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="ban" class="text-red-500 w-10 h-10"></i>
+            </div>
+            <h2 class="text-2xl font-black uppercase text-red-500 mb-2">Accès Refusé</h2>
+            <p id="forbidden-msg" class="text-slate-400 text-sm mb-8">Votre compte n'est pas autorisé à accéder à cette fonctionnalité.</p>
+            
+            <button onclick="handleLogout()" class="w-full py-4 bg-red-500 hover:bg-red-600 text-white font-bold rounded-2xl transition-all">
+                Changer de compte
+            </button>
+        </div>
+    </div>
+
+    <!-- Interface Principale (Seulement pour les vrais admins) -->
     <div class="max-w-6xl mx-auto">
         <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/40 border border-white/10">
+                <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
                     <i data-lucide="layout-grid" class="text-white"></i>
                 </div>
-                <h1 class="text-3xl font-bold tracking-tight text-white flex items-baseline">
-                    LevelUp<span class="ml-2 text-blue-500 italic font-black uppercase text-2xl tracking-tighter">STUDIO</span>
-                </h1>
+                <h1 class="text-3xl font-bold text-white">LevelUp Studio</h1>
             </div>
             
             <div class="flex items-center gap-4">
-                <div id="connection-status" class="flex items-center gap-3 px-5 py-2.5 bg-slate-900/80 rounded-2xl border border-white/5 backdrop-blur-md">
-                    <span class="status-dot bg-red-500"></span>
-                    <span class="text-xs font-bold uppercase tracking-[0.15em] text-slate-400">Déconnecté</span>
+                <div id="connection-status" class="flex items-center gap-3 px-5 py-2.5 bg-slate-900/80 rounded-2xl border border-white/5">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span id="user-display" class="text-xs font-bold text-slate-400">Vérification...</span>
                 </div>
-                <button onclick="handleLogout()" class="p-2.5 bg-white/5 hover:bg-red-500/20 rounded-xl border border-white/5 text-slate-400 hover:text-red-500 transition-all">
+                <button onclick="handleLogout()" class="p-2.5 bg-white/5 hover:bg-red-500/20 rounded-xl text-slate-400 transition-all">
                     <i data-lucide="log-out" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -116,66 +88,49 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="admin-card p-8 rounded-[2rem] flex flex-col justify-between">
-                        <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mb-6"><i data-lucide="power" class="text-blue-500"></i></div>
-                        <h3 class="font-bold text-xl mb-2">Accès Client</h3>
-                        <label class="flex items-center justify-between cursor-pointer bg-black/20 p-4 rounded-2xl border border-white/5">
-                            <span id="session-label" class="text-sm font-bold uppercase text-slate-300 tracking-wider">---</span>
-                            <div class="relative">
-                                <input type="checkbox" id="isSessionOpen" class="sr-only peer" onchange="updateSettings()">
-                                <div class="w-14 h-7 bg-slate-800 rounded-full peer peer-checked:bg-blue-600 transition-all"></div>
-                                <div class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-7"></div>
-                            </div>
-                        </label>
-                    </div>
-
-                    <div class="admin-card p-8 rounded-[2rem]">
-                        <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mb-6"><i data-lucide="trending-up" class="text-blue-500"></i></div>
-                        <h3 class="font-bold text-xl mb-2">Progression</h3>
-                        <input type="range" id="progressRange" min="0" max="100" step="5" class="w-full h-2 bg-white/5 rounded-lg appearance-none cursor-pointer accent-blue-600 mt-4" oninput="document.getElementById('progressVal').innerText = this.value + '%'" onchange="updateSettings()">
-                        <div class="mt-4 text-3xl font-black text-blue-500" id="progressVal">0%</div>
+                <div class="admin-card p-8 rounded-[2rem] space-y-6">
+                    <h3 class="font-bold text-xl flex items-center gap-2"><i data-lucide="sliders" class="text-blue-500 w-5 h-5"></i> Contrôles</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-black/20 p-4 rounded-xl">
+                            <label class="block text-[10px] font-black uppercase text-slate-500 mb-2">Statut Session</label>
+                            <select id="isSessionOpen" onchange="updateSettings()" class="w-full bg-transparent border-none text-white font-bold focus:ring-0">
+                                <option value="true">OUVERT</option>
+                                <option value="false">FERMÉ</option>
+                            </select>
+                        </div>
+                        <div class="bg-black/20 p-4 rounded-xl">
+                            <label class="block text-[10px] font-black uppercase text-slate-500 mb-2">Progression</label>
+                            <input type="number" id="progressVal" onchange="updateSettings()" class="w-full bg-transparent border-none text-blue-500 font-black focus:ring-0">
+                        </div>
                     </div>
                 </div>
 
-                <div class="admin-card p-8 rounded-[2.5rem] space-y-6">
-                    <input type="text" id="statusTitle" class="w-full p-4 rounded-xl font-bold border border-white/10" placeholder="Titre de l'activité" onchange="updateSettings()">
-                    <textarea id="statusDescription" class="w-full p-4 rounded-xl h-24 resize-none border border-white/10" placeholder="Message aux clients..." onchange="updateSettings()"></textarea>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="datetime-local" id="targetDate" class="w-full p-4 rounded-xl font-bold border border-white/10" onchange="updateSettings()">
-                        <button onclick="updateSettings()" class="py-4 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase rounded-xl transition-all shadow-lg">Sauvegarder</button>
-                    </div>
+                <div class="admin-card p-8 rounded-[2rem] space-y-4">
+                    <h3 class="font-bold text-xl flex items-center gap-2"><i data-lucide="message-square" class="text-blue-500 w-5 h-5"></i> Annonce Client</h3>
+                    <input type="text" id="statusTitle" class="w-full p-4 rounded-xl bg-slate-950 border border-white/10" placeholder="Titre..." onchange="updateSettings()">
+                    <textarea id="statusDescription" class="w-full p-4 rounded-xl bg-slate-950 border border-white/10 h-32" placeholder="Message détaillé..." onchange="updateSettings()"></textarea>
                 </div>
             </div>
 
-            <div class="lg:col-span-1 space-y-6">
-                <div class="flex justify-between items-center px-2">
-                    <h2 class="text-lg font-black uppercase tracking-widest flex items-center gap-3">Flux</h2>
-                    <span id="badge-count" class="bg-blue-600 text-[10px] px-2 py-0.5 rounded-full hidden">0</span>
-                </div>
+            <div class="lg:col-span-1">
+                <h2 class="text-sm font-black uppercase tracking-widest mb-4 px-2">Dernières Demandes</h2>
                 <div id="requests-list" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
             </div>
         </div>
     </div>
 
-    <!-- Mini Console de Diagnostic -->
-    <div id="debug-container" class="fixed bottom-4 right-4 w-72 admin-card rounded-xl border border-white/20 overflow-hidden shadow-2xl transition-all">
+    <!-- Console de Debug -->
+    <div id="debug-container" class="fixed bottom-4 right-4 w-72 admin-card rounded-xl border border-white/20 overflow-hidden shadow-2xl z-[9999]">
         <div class="bg-slate-900 px-3 py-2 border-b border-white/10 flex justify-between items-center">
-            <span class="text-[9px] font-black uppercase tracking-widest text-blue-400">Diagnostic Monitor</span>
-            <div class="flex gap-1.5">
-                <button onclick="clearLogs()" class="text-[8px] text-slate-500 hover:text-white uppercase font-bold mr-2">Effacer</button>
-                <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-            </div>
+            <span class="text-[9px] font-black text-blue-400">SÉCURITÉ MONITOR</span>
+            <button onclick="clearLogs()" class="text-[8px] text-slate-500 uppercase font-bold">Clear</button>
         </div>
-        <div id="debug-console" class="p-3 max-h-48 overflow-y-auto space-y-1 console-log bg-black/40">
-            <div class="text-slate-500">> En attente d'interaction...</div>
-        </div>
+        <div id="debug-console" class="p-3 max-h-48 overflow-y-auto space-y-1 console-log bg-black/40"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, collection } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc, collection } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -187,169 +142,116 @@
             appId: "1:665809390410:web:4fd0930b09aecd8f90cfb3"
         };
 
-        // --- CONFIGURATION ADMIN ---
-        // METS TON EMAIL GOOGLE ICI POUR AUTORISER L'ACCÈS
-        const ADMIN_EMAIL = "ton.email@gmail.com"; 
-        
         const appId = 'levelup-studio';
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // Helper Console
         const log = (msg, type = 'info') => {
             const consoleEl = document.getElementById('debug-console');
             const entry = document.createElement('div');
-            const colors = { 
-                info: 'text-blue-400', 
-                success: 'text-green-400', 
-                error: 'text-red-400 font-bold',
-                warn: 'text-yellow-400' 
-            };
-            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            const colors = { info: 'text-blue-400', success: 'text-green-400', error: 'text-red-400 font-bold', warn: 'text-yellow-400' };
             entry.className = colors[type] || 'text-white';
-            entry.innerHTML = `<span class="opacity-30 mr-1">[${time}]</span> > ${msg}`;
+            entry.innerHTML = `> ${msg}`;
             consoleEl.prepend(entry);
         };
 
-        window.clearLogs = () => {
-            document.getElementById('debug-console').innerHTML = '<div class="text-slate-500">> Console vidée.</div>';
-        };
-
-        // Auth Logic avec Google
         window.handleGoogleLogin = async () => {
-            const btn = document.getElementById('login-btn');
-            const errorEl = document.getElementById('auth-error');
-
             try {
-                btn.disabled = true;
-                log("Ouverture de la fenêtre Google...", "info");
-                const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-
-                // Vérification de sécurité (Whitelist)
-                if (user.email !== ADMIN_EMAIL) {
-                    log(`Accès refusé pour ${user.email}`, "error");
-                    errorEl.innerText = "Accès non autorisé pour ce compte.";
-                    errorEl.classList.remove('hidden');
-                    await signOut(auth);
-                } else {
-                    log("Authentification admin réussie !", "success");
-                }
+                log("Ouverture popup Google...", "info");
+                await signInWithPopup(auth, provider);
             } catch (e) {
-                btn.disabled = false;
-                log(`Erreur Google: ${e.code}`, "error");
-                errorEl.innerText = "Erreur de connexion.";
-                errorEl.classList.remove('hidden');
+                log("Erreur login: " + e.code, "error");
             }
         };
 
-        window.handleLogout = () => {
-            signOut(auth);
-            log("Session fermée.");
+        window.handleLogout = async () => {
+            await signOut(auth);
+            location.reload();
         };
 
-        onAuthStateChanged(auth, (user) => {
-            const statusEl = document.getElementById('connection-status');
+        onAuthStateChanged(auth, async (user) => {
             const overlay = document.getElementById('auth-overlay');
+            const forbidden = document.getElementById('forbidden-overlay');
+            const userDisplay = document.getElementById('user-display');
             
-            if (user && user.email === ADMIN_EMAIL) {
-                overlay.classList.add('hidden');
-                statusEl.innerHTML = `<span class="status-dot bg-green-500 animate-pulse"></span><span class="text-xs font-bold uppercase tracking-[0.15em] text-green-400">Admin: ${user.displayName || user.email}</span>`;
-                loadData();
-                log("Dashboard synchronisé", "success");
+            if (user) {
+                log(`Vérification des droits pour: ${user.email}...`);
+                
+                // Vérifier si l'utilisateur est dans la collection 'admins'
+                const adminRef = doc(db, 'artifacts', appId, 'public', 'data', 'admins', user.email);
+                const adminSnap = await getDoc(adminRef);
+
+                if (adminSnap.exists()) {
+                    log("Accès Admin confirmé.", "success");
+                    overlay.classList.add('hidden');
+                    forbidden.classList.add('hidden');
+                    userDisplay.innerText = user.email;
+                    loadData();
+                } else {
+                    log(`ALERTE: Tentative d'accès par ${user.email}`, "warn");
+                    overlay.classList.add('hidden');
+                    forbidden.classList.remove('hidden');
+                    document.getElementById('forbidden-msg').innerText = `Le compte ${user.email} n'a pas les droits d'administration.`;
+                }
             } else {
                 overlay.classList.remove('hidden');
-                statusEl.innerHTML = `<span class="status-dot bg-red-500"></span><span class="text-xs font-bold uppercase tracking-[0.15em] text-slate-400">Déconnecté</span>`;
-                if (!user) log("En attente de connexion Google...", "warn");
             }
         });
 
-        // Firestore Logic
-        window.toggleDone = async (requestId, currentState) => {
-            if(!auth.currentUser || auth.currentUser.email !== ADMIN_EMAIL) return log("Action non autorisée", "error");
-            try {
-                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', requestId), {
-                    isDone: !currentState
-                });
-                log(`Ticket mis à jour`, "success");
-            } catch (e) {
-                log(`Erreur Firestore: ${e.code}`, "error");
-            }
-        };
-
+        // Fonction pour charger les données (seulement si admin)
         function loadData() {
             onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), (snap) => {
                 if (snap.exists()) {
-                    const data = snap.data();
-                    document.getElementById('isSessionOpen').checked = data.isSessionOpen;
-                    document.getElementById('session-label').innerText = data.isSessionOpen ? "Ouvert" : "Fermé";
-                    document.getElementById('progressRange').value = data.progress || 0;
-                    document.getElementById('progressVal').innerText = (data.progress || 0) + '%';
-                    document.getElementById('statusTitle').value = data.statusTitle || '';
-                    document.getElementById('statusDescription').value = data.statusDescription || '';
-                    if (data.targetDate) {
-                        const date = new Date(data.targetDate);
-                        const tzoffset = (new Date()).getTimezoneOffset() * 60000;
-                        document.getElementById('targetDate').value = (new Date(date - tzoffset)).toISOString().slice(0, 16);
-                    }
+                    const d = snap.data();
+                    document.getElementById('isSessionOpen').value = d.isSessionOpen.toString();
+                    document.getElementById('progressVal').value = d.progress || 0;
+                    document.getElementById('statusTitle').value = d.statusTitle || '';
+                    document.getElementById('statusDescription').value = d.statusDescription || '';
                 }
-            }, (err) => log("Problème Settings: " + err.code, "error"));
+            });
 
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'requests'), (snap) => {
                 const list = document.getElementById('requests-list');
-                const badge = document.getElementById('badge-count');
-                if (snap.empty) {
-                    list.innerHTML = `<div class="text-center opacity-40 p-10 font-bold uppercase text-[10px]">Aucun flux</div>`;
-                    badge.classList.add('hidden');
-                    return;
-                }
-                badge.innerText = snap.size;
-                badge.classList.remove('hidden');
-                let docs = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a, b) => b.timestamp - a.timestamp);
-                const now = Date.now();
-                list.innerHTML = docs.map(r => {
-                    const isNew = (now - r.timestamp) < (30 * 60 * 1000);
-                    const date = new Date(r.timestamp).toLocaleString('fr-FR', {hour:'2-digit', minute:'2-digit', day:'numeric', month:'short'});
+                list.innerHTML = snap.docs.map(doc => {
+                    const r = doc.data();
                     return `
-                        <div onclick="toggleDone('${r.id}', ${r.isDone || false})" class="admin-card p-5 rounded-2xl border-l-2 cursor-pointer transition-all ${r.isDone ? 'request-done' : 'border-l-blue-600'}">
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="flex items-center gap-2">
-                                    ${isNew && !r.isDone ? '<span class="bg-blue-600 text-[7px] font-black px-1.5 py-0.5 rounded text-white uppercase">Nouveau</span>' : ''}
-                                    <span class="text-blue-500 text-[8px] font-black px-2 py-0.5 rounded bg-blue-500/10 uppercase border border-blue-500/20">${r.category}</span>
-                                </div>
-                                <span class="text-white font-bold text-[11px]">${r.pseudo}</span>
-                            </div>
-                            <p class="text-slate-300 text-[12px] mb-3">${r.details}</p>
-                            <div class="flex justify-between text-[8px] text-slate-500 font-bold uppercase">
-                                <span>${date}</span>
-                                ${r.isDone ? '<span class="text-green-500">TERMINÉ</span>' : ''}
-                            </div>
+                        <div class="admin-card p-4 rounded-xl border-l-4 ${r.isDone ? 'border-l-green-500 opacity-50' : 'border-l-blue-500'}">
+                            <div class="text-[10px] font-black text-blue-400 uppercase mb-1">${r.category}</div>
+                            <div class="text-sm font-bold text-white mb-1">${r.pseudo}</div>
+                            <div class="text-xs text-slate-400">${r.details}</div>
                         </div>
                     `;
                 }).join('');
-            }, (err) => log("Problème Flux: " + err.code, "error"));
+            });
         }
 
         window.updateSettings = async () => {
-            if(!auth.currentUser || auth.currentUser.email !== ADMIN_EMAIL) return log("Non autorisé", "error");
-            const targetVal = document.getElementById('targetDate').value;
+            const user = auth.currentUser;
+            if(!user) return;
+
             try {
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), {
-                    isSessionOpen: document.getElementById('isSessionOpen').checked,
-                    progress: parseInt(document.getElementById('progressRange').value),
+                    isSessionOpen: document.getElementById('isSessionOpen').value === 'true',
+                    progress: parseInt(document.getElementById('progressVal').value),
                     statusTitle: document.getElementById('statusTitle').value,
-                    statusDescription: document.getElementById('statusDescription').value,
-                    targetDate: targetVal ? new Date(targetVal).getTime() : 0
+                    statusDescription: document.getElementById('statusDescription').value
                 });
-                log("Modifications sauvegardées", "success");
+                log("Base de données mise à jour.", "success");
             } catch (e) {
-                log(`Échec sauvegarde: ${e.code}`, "error");
+                log("Erreur d'écriture: " + e.code, "error");
             }
         };
 
+        window.clearLogs = () => document.getElementById('debug-console').innerHTML = "";
         lucide.createIcons();
+
+        // --- SCRIPT D'INITIALISATION (À EXÉCUTER UNE FOIS) ---
+        // Décommente la ligne ci-dessous, remplace par ton email, connecte-toi, 
+        // puis RE-COMMENTE la ligne pour sécuriser.
+        // setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'admins', 'richelieubonte@gmail.com), { role: 'owner' });
+
     </script>
 </body>
 </html>
