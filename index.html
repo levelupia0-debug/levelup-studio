@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LevelUp Admin - Hyper Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap');
+        
+        :root {
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #020617; 
+            color: #f8fafc;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(147, 51, 234, 0.1) 0%, transparent 40%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .admin-card { 
+            background: rgba(15, 23, 42, 0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            backdrop-filter: blur(16px); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .admin-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .request-done {
+            opacity: 0.4;
+            border-left-color: #22c55e !important;
+            filter: grayscale(0.8);
+        }
+
+        input, textarea, select { 
+            background: rgba(2, 6, 23, 0.5) !important; 
+            border: 1px solid rgba(255, 255, 255, 0.1) !important; 
+            color: white !important; 
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .new-badge {
+            animation: pulse-blue 2s infinite;
+        }
+
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        ::-webkit-scrollbar { width: 0px; }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/40 border border-white/10">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-white"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                </div>
+                <h1 class="text-3xl font-bold tracking-tight text-white flex items-baseline">
+                    LevelUp<span class="ml-2 text-blue-500 italic font-black uppercase text-2xl tracking-tighter">STUDIO</span>
+                </h1>
+            </div>
+            
+            <div id="connection-status" class="flex items-center gap-3 px-5 py-2.5 bg-slate-900/80 rounded-2xl border border-white/5 backdrop-blur-md">
+                <span class="status-dot bg-red-500"></span>
+                <span class="text-xs font-bold uppercase tracking-[0.15em] text-slate-400">Vérification...</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-2 space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Session Toggle -->
+                    <div class="admin-card p-8 rounded-[2rem] flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mb-6">
+                                <i data-lucide="power" class="text-blue-500 w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-bold text-xl mb-2">Accès Client</h3>
+                        </div>
+                        <label class="flex items-center justify-between cursor-pointer bg-black/20 p-4 rounded-2xl border border-white/5">
+                            <span id="session-label" class="text-sm font-bold uppercase text-slate-300 tracking-wider">Chargement...</span>
+                            <div class="relative">
+                                <input type="checkbox" id="isSessionOpen" class="sr-only peer" onchange="updateSettings()">
+                                <div class="w-14 h-7 bg-slate-800 rounded-full peer peer-checked:bg-blue-600 transition-all"></div>
+                                <div class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-7"></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Progress Control -->
+                    <div class="admin-card p-8 rounded-[2rem]">
+                        <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mb-6">
+                            <i data-lucide="trending-up" class="text-blue-500 w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">Progression Live</h3>
+                        <input type="range" id="progressRange" min="0" max="100" step="5" class="w-full h-2 bg-white/5 rounded-lg appearance-none cursor-pointer accent-blue-600 mt-4" oninput="document.getElementById('progressVal').innerText = this.value + '%'" onchange="updateSettings()">
+                        <div class="mt-4 text-3xl font-black text-blue-500" id="progressVal">0%</div>
+                    </div>
+                </div>
+
+                <div class="admin-card p-8 rounded-[2.5rem] space-y-6">
+                    <div class="flex items-center gap-4 border-b border-white/5 pb-6">
+                        <i data-lucide="edit-3" class="text-blue-500 w-5 h-5"></i>
+                        <h3 class="font-bold text-lg uppercase tracking-widest">Configuration Dashboard</h3>
+                    </div>
+
+                    <div class="space-y-6">
+                        <input type="text" id="statusTitle" class="w-full p-4 rounded-xl font-bold border border-white/10" placeholder="Titre de l'activité" onchange="updateSettings()">
+                        <textarea id="statusDescription" class="w-full p-4 rounded-xl h-24 resize-none border border-white/10" placeholder="Message aux clients..." onchange="updateSettings()"></textarea>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="datetime-local" id="targetDate" class="w-full p-4 rounded-xl font-bold border border-white/10" onchange="updateSettings()">
+                            <button onclick="updateSettings()" class="py-4 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase rounded-xl transition-all shadow-lg">Sauvegarder</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FLUX DE DEMANDES (Toujours les plus récentes en haut) -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="flex justify-between items-center px-2">
+                    <h2 class="text-lg font-black uppercase tracking-widest flex items-center gap-3">
+                        Flux <span id="badge-count" class="bg-blue-600 text-[10px] px-2 py-0.5 rounded-full hidden">0</span>
+                    </h2>
+                    <span class="text-[9px] font-bold text-blue-400 uppercase tracking-widest">Trié par : Récent</span>
+                </div>
+                
+                <div id="requests-list" class="space-y-4 max-h-[80vh] overflow-y-auto pr-2">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, collection } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBBJGVLBN2a2-CaoSH4Jtn3aRjIHqOO-7E",
+            authDomain: "bonteia.firebaseapp.com",
+            projectId: "bonteia",
+            storageBucket: "bonteia.firebasestorage.app",
+            messagingSenderId: "665809390410",
+            appId: "1:665809390410:web:4fd0930b09aecd8f90cfb3"
+        };
+
+        const appId = 'levelup-studio';
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        };
+        initAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            const statusEl = document.getElementById('connection-status');
+            if (user) {
+                statusEl.innerHTML = `<span class="status-dot bg-green-500 animate-pulse"></span><span class="text-xs font-bold uppercase tracking-[0.15em] text-green-400">Admin Connecté</span>`;
+                loadData();
+            }
+        });
+
+        window.toggleDone = async (requestId, currentState) => {
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', requestId), {
+                isDone: !currentState
+            });
+        };
+
+        function loadData() {
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    document.getElementById('isSessionOpen').checked = data.isSessionOpen;
+                    document.getElementById('session-label').innerText = data.isSessionOpen ? "Ouvert" : "Fermé";
+                    document.getElementById('progressRange').value = data.progress || 0;
+                    document.getElementById('progressVal').innerText = (data.progress || 0) + '%';
+                    document.getElementById('statusTitle').value = data.statusTitle || '';
+                    document.getElementById('statusDescription').value = data.statusDescription || '';
+                    if (data.targetDate) {
+                        const date = new Date(data.targetDate);
+                        const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+                        document.getElementById('targetDate').value = (new Date(date - tzoffset)).toISOString().slice(0, 16);
+                    }
+                }
+            });
+
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'requests'), (snap) => {
+                const list = document.getElementById('requests-list');
+                const badge = document.getElementById('badge-count');
+                
+                if (snap.empty) {
+                    list.innerHTML = `<div class="text-center opacity-40 p-10 font-bold uppercase text-[10px]">Aucun flux</div>`;
+                    badge.classList.add('hidden');
+                    return;
+                }
+
+                badge.innerText = snap.size;
+                badge.classList.remove('hidden');
+                
+                let docs = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                
+                // TRI FORCE : Toujours du plus récent (timestamp haut) au plus ancien
+                docs.sort((a, b) => b.timestamp - a.timestamp);
+
+                const now = Date.now();
+                list.innerHTML = docs.map(r => {
+                    const isNew = (now - r.timestamp) < (30 * 60 * 1000); // Nouveau si moins de 30 mins
+                    const date = new Date(r.timestamp).toLocaleString('fr-FR', {hour:'2-digit', minute:'2-digit', day:'numeric', month:'short'});
+                    
+                    return `
+                        <div onclick="toggleDone('${r.id}', ${r.isDone || false})" class="admin-card p-5 rounded-2xl border-l-2 cursor-pointer transition-all ${r.isDone ? 'request-done' : 'border-l-blue-600'}">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center gap-2">
+                                    ${isNew && !r.isDone ? '<span class="new-badge bg-blue-600 text-[7px] font-black px-1.5 py-0.5 rounded text-white uppercase">Récent</span>' : ''}
+                                    <span class="text-blue-500 text-[8px] font-black px-2 py-0.5 rounded bg-blue-500/10 uppercase tracking-tighter border border-blue-500/20">${r.category}</span>
+                                </div>
+                                <span class="text-white font-bold text-[11px]">${r.pseudo}</span>
+                            </div>
+                            <p class="text-slate-300 text-[12px] leading-relaxed mb-3">${r.details}</p>
+                            <div class="flex items-center justify-between text-[8px] text-slate-500 font-bold uppercase">
+                                <span>${date}</span>
+                                ${r.isDone ? '<span class="text-green-500">TERMINÉ</span>' : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                lucide.createIcons();
+            });
+        }
+
+        window.updateSettings = async () => {
+            const targetVal = document.getElementById('targetDate').value;
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), {
+                isSessionOpen: document.getElementById('isSessionOpen').checked,
+                progress: parseInt(document.getElementById('progressRange').value),
+                statusTitle: document.getElementById('statusTitle').value,
+                statusDescription: document.getElementById('statusDescription').value,
+                targetDate: targetVal ? new Date(targetVal).getTime() : 0
+            });
+        };
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
