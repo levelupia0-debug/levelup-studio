@@ -26,6 +26,7 @@
         #auth-overlay, #forbidden-overlay {
             background: rgba(2, 6, 23, 0.98);
             backdrop-filter: blur(20px);
+            z-index: 100;
         }
 
         .console-log { font-family: monospace; font-size: 10px; }
@@ -35,7 +36,7 @@
 <body class="p-4 md:p-12">
 
     <!-- Écran de Connexion -->
-    <div id="auth-overlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div id="auth-overlay" class="fixed inset-0 flex items-center justify-center p-4">
         <div class="admin-card p-10 rounded-[2.5rem] w-full max-w-md text-center">
             <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
                 <i data-lucide="shield-check" class="text-white w-10 h-10"></i>
@@ -50,14 +51,14 @@
         </div>
     </div>
 
-    <!-- Écran ACCÈS INTERDIT (Caché par défaut) -->
-    <div id="forbidden-overlay" class="fixed inset-0 z-[110] flex items-center justify-center p-4 hidden">
+    <!-- Écran ACCÈS INTERDIT -->
+    <div id="forbidden-overlay" class="fixed inset-0 flex items-center justify-center p-4 hidden">
         <div class="admin-card p-10 rounded-[2.5rem] w-full max-w-md text-center border-red-500/30">
             <div class="w-20 h-20 bg-red-500/20 border border-red-500/50 rounded-3xl flex items-center justify-center mx-auto mb-6">
                 <i data-lucide="ban" class="text-red-500 w-10 h-10"></i>
             </div>
             <h2 class="text-2xl font-black uppercase text-red-500 mb-2">Accès Refusé</h2>
-            <p id="forbidden-msg" class="text-slate-400 text-sm mb-8">Votre compte n'est pas autorisé à accéder à cette fonctionnalité.</p>
+            <p id="forbidden-msg" class="text-slate-400 text-sm mb-8">Votre compte n'est pas autorisé.</p>
             
             <button onclick="handleLogout()" class="w-full py-4 bg-red-500 hover:bg-red-600 text-white font-bold rounded-2xl transition-all">
                 Changer de compte
@@ -65,7 +66,7 @@
         </div>
     </div>
 
-    <!-- Interface Principale (Seulement pour les vrais admins) -->
+    <!-- Interface Principale -->
     <div class="max-w-6xl mx-auto">
         <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16">
             <div class="flex items-center gap-4">
@@ -99,7 +100,7 @@
                             </select>
                         </div>
                         <div class="bg-black/20 p-4 rounded-xl">
-                            <label class="block text-[10px] font-black uppercase text-slate-500 mb-2">Progression</label>
+                            <label class="block text-[10px] font-black uppercase text-slate-500 mb-2">Progression (%)</label>
                             <input type="number" id="progressVal" onchange="updateSettings()" class="w-full bg-transparent border-none text-blue-500 font-black focus:ring-0">
                         </div>
                     </div>
@@ -160,6 +161,9 @@
         window.handleGoogleLogin = async () => {
             try {
                 log("Ouverture popup Google...", "info");
+                // Étape critique : On s'assure d'écrire ton e-mail avant que la vérification ne tourne
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'admins', 'richelieubonte@gmail.com'), { role: 'owner' });
+                log("E-mail admin pré-autorisé.", "success");
                 await signInWithPopup(auth, provider);
             } catch (e) {
                 log("Erreur login: " + e.code, "error");
@@ -177,30 +181,27 @@
             const userDisplay = document.getElementById('user-display');
             
             if (user) {
-                log(`Vérification des droits pour: ${user.email}...`);
-                
-                // Vérifier si l'utilisateur est dans la collection 'admins'
+                log(`Vérification pour: ${user.email}...`);
                 const adminRef = doc(db, 'artifacts', appId, 'public', 'data', 'admins', user.email);
                 const adminSnap = await getDoc(adminRef);
 
                 if (adminSnap.exists()) {
-                    log("Accès Admin confirmé.", "success");
+                    log("Accès Admin confirmé !", "success");
                     overlay.classList.add('hidden');
                     forbidden.classList.add('hidden');
                     userDisplay.innerText = user.email;
                     loadData();
                 } else {
-                    log(`ALERTE: Tentative d'accès par ${user.email}`, "warn");
+                    log(`Accès refusé pour ${user.email}`, "error");
                     overlay.classList.add('hidden');
                     forbidden.classList.remove('hidden');
-                    document.getElementById('forbidden-msg').innerText = `Le compte ${user.email} n'a pas les droits d'administration.`;
+                    document.getElementById('forbidden-msg').innerText = `Le compte ${user.email} n'est pas autorisé.`;
                 }
             } else {
                 overlay.classList.remove('hidden');
             }
         });
 
-        // Fonction pour charger les données (seulement si admin)
         function loadData() {
             onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), (snap) => {
                 if (snap.exists()) {
@@ -230,7 +231,6 @@
         window.updateSettings = async () => {
             const user = auth.currentUser;
             if(!user) return;
-
             try {
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), {
                     isSessionOpen: document.getElementById('isSessionOpen').value === 'true',
@@ -238,19 +238,14 @@
                     statusTitle: document.getElementById('statusTitle').value,
                     statusDescription: document.getElementById('statusDescription').value
                 });
-                log("Base de données mise à jour.", "success");
+                log("Réglages mis à jour !", "success");
             } catch (e) {
-                log("Erreur d'écriture: " + e.code, "error");
+                log("Erreur de sauvegarde: " + e.code, "error");
             }
         };
 
         window.clearLogs = () => document.getElementById('debug-console').innerHTML = "";
         lucide.createIcons();
-
-        // --- SCRIPT D'INITIALISATION ---
-        // Décommente la ligne ci-dessous pour t'ajouter comme admin lors de ton premier login
-        // setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'admins', 'richelieubonte@gmail.com'), { role: 'owner' });
-
     </script>
 </body>
 </html>
